@@ -8,10 +8,6 @@ fn main() {
         println!("Error parsing arguements{err}");
         process::exit(1)
     });
-    println!(
-        "Searching for {} \nin file {}",
-        config.search_query, config.file_path
-    );
     if let Err(e) = minigrep::run(&config) {
         println!("Application error {e}");
         process::exit(1);
