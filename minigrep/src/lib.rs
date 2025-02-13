@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fs;
+use std::{fs, vec};
 
 pub struct Config {
     pub search_query: String,
@@ -39,6 +39,18 @@ pub fn search<'a>(search_query: &str, contents: &'a str) -> Vec<&'a str> {
     }
     result
 }
+
+pub fn search_case_insensitive<'a>(search_query: &str, contents: &'a str) -> Vec<&'a str> {
+    let query = search_query.to_lowercase();
+    let mut result = Vec::new();
+    for line in contents.lines() {
+        if line.to_lowercase().contains(&query) {
+            result.push(line.trim());
+        }
+    }
+
+    result
+}
 #[cfg(test)]
 mod tests {
     use std::vec;
@@ -46,13 +58,29 @@ mod tests {
     use super::*;
 
     #[test]
-    fn one_result() {
+    fn case_sensitive() {
         let query = "duct";
         let contents = "\
 Rust
 Safe,fast,productive.
-ick three.";
+ick three.
+Duct Tape.";
 
-        assert_eq!(vec!["Safe,fast,productive."], search(query, contents))
+        assert_eq!(
+            vec!["Safe,fast,productive.", "Duct Tape."],
+            search(query, contents)
+        )
+    }
+
+    #[test]
+    fn case_insensitive() {
+        let query = "rUSt";
+        let contents = "\
+Rust
+Safe,fast,productive.
+ick three.
+Trust me.";
+
+        assert_eq!(vec!["Rust,Trust me."], search(query, contents))
     }
 }
